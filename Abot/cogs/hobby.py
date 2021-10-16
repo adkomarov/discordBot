@@ -1,4 +1,4 @@
-from Abot import confidenc as bt
+from mylibs import confidenc as bt
 import json
 import requests
 import discord
