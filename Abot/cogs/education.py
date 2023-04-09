@@ -1,19 +1,91 @@
-#education
 import discord
 from discord.ext import commands
-#import asyncio
-#from discord import ui
 import requests
-
 import wikipedia
-
 from bs4 import BeautifulSoup
-
 import deepl
 
+def FormingRequestLink(BrowserLink:str,UserRequest:str):
+    UserRequest = UserRequest.replace(' ', '+')
+    FinalUrl = BrowserLink + UserRequest
+    return FinalUrl
+
+def FormingPopularBrowserLink(q,w:list):
+    for i in range(len(q)-1):
+        if q[i]=='yandex':
+            w.append('https://www.'+q[i]+'.ru/text?q=')
+        else:
+            w.append('https://www.'+q[i]+'.ru/search?q=')
+
+class Education(commands.Cog):
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
+        
+    @commands.command(name="f",
+                      brief="find",
+                      usage="f {word}+{word} (etc.)",
+                      description = 'Browser link')
+    async def f(self, ctx,*,UserRequest):
+        BrowserLink=['google','yandex','go.mail'];PopularBrowserLink=[];FormedLink=[];FormedAttachments=[]
+        FormingPopularBrowserLink(BrowserLink,PopularBrowserLink)
+        TitlePopularBrowser=['Google','Yandex','Mail']
+        MainColour=discord.Color.green()
+        for i in range(len(BrowserLink)-1):
+            FormedLink.append(FormingRequestLink(PopularBrowserLink[i],UserRequest))
+            del PopularBrowserLink;del UserRequest
+            FormedAttachments.append(discord.Embed(title=TitlePopularBrowser[i],colour = MainColour,url=FormedLink[i]))
+            del TitlePopularBrowser;del MainColour;del FormedLink
+            await ctx.send(embed=FormedAttachments[i])
+
+    @commands.command(name="wiki",
+                      brief="wikipedia",
+                      usage="wiki {word} {word} (etc.)",
+                      description = 'Browser link')
+    async def wiki(self, ctx,lan,sent,*,ser):
+        wikipedia.set_lang(lan)
+        search=ser
+        ser=ser.replace(' ','_')
+        url1='https://ru.wikipedia.org/wiki/'+ser
+        emb1 = discord.Embed(title='Wiki',colour = discord.Color.green())
+        emb1.add_field(name=ser, value=wikipedia.summary(search,sentences=sent), inline=True)
+        emb2 = discord.Embed(title='Etc?',colour = discord.Color.green(),url=url1)
+        await ctx.send(embed=emb1)
+        await ctx.send(embed=emb2)
+            
+    @commands.command(name="art",
+                      brief="translator",
+                      usage="art {source} {required} {formality_tone} {text}",
+                      description = 'Deepl translator')
+    async def art(self, ctx,source,target,*,resp):
+        responce = deepl.translate(source_language=source,
+                target_language=target,
+                text=resp,
+                formality_tone="informal")# text="formality_tone="informal")
+        responce1 = deepl.translate(source_language=target,
+                target_language=source,
+                text=responce,
+                formality_tone="informal")
+        title1 = source +' -> '+ target
+        title2 = target +' -> '+ source
+        url1='https://www.deepl.com/en/translator'
+        emb1 = discord.Embed(title=title1,colour = discord.Color.green())
+        emb1.add_field(name=target, value=responce, inline=True)
+        emb2 = discord.Embed(title=title2,colour = discord.Color.green())
+        emb2.add_field(name=target, value=responce1, inline=True)
+        emb3 = discord.Embed(title='Etc?',colour = discord.Color.green(),url=url1)
+        await ctx.send(embed=emb1)
+        await ctx.send(embed=emb2)
+
+async def setup(bot: commands.Bot): # Подключение кога.
+    await bot.add_cog(Education(bot))
+print('educ cog')
+
+'''
 def get_html(url):
     response = requests.get(url)#Запрос страницы
     return response.text# Возвращение HTML кода
+'''
+'''
 def get_ynews(html):
     soup = BeautifulSoup(html, 'lxml')
     spans = soup.find('ol', class_='news__list').findAll('span', class_='news__item-content') #Поиск первых четрыех строк
@@ -23,6 +95,7 @@ def get_ynews(html):
         news.append(s.get_text())
     news.append(span_last.get_text())
     return news
+'''
 '''
 def get_mnews(html):
     soup = BeautifulSoup(html, 'lxml')
@@ -34,12 +107,8 @@ def get_mnews(html):
     return news
 #news-visited svelte-1pm37ss
 '''
-
-class Education(commands.Cog):
-    def __init__(self, bot: commands.Bot):
-        self.bot = bot
-        
-    @commands.command(name="news",
+'''
+@commands.command(name="news",
                       brief="news.",
                       usage="news",
                       description = 'embed message news')
@@ -67,64 +136,4 @@ class Education(commands.Cog):
 #        emb1.add_field(name="Mail:",value=new6, inline=False)
         await ctx.send(embed=emb1)
         print('y')
-
-    @commands.command(name="f",
-                      brief="find",
-                      usage="f {word}+{word} (etc.)",
-                      description = 'Browser link')
-    async def f(self, ctx,*,seac1):
-        seac1 = seac1.replace(' ', '+')
-        url1 = 'https://www.google.ru/search?q='+seac1
-        url2 = 'https://www.yandex.ru/text?q='+seac1
-        url3 = 'https://www.go.mail.ru/search?q='+seac1
-        emb1 = discord.Embed(title='Google',colour = discord.Color.green(),url=url1)
-        emb2 = discord.Embed(title='Yandex',colour = discord.Color.green(),url=url2)
-        emb3 = discord.Embed(title='Mail',colour = discord.Color.green(),url=url3)
-        await ctx.send(embed=emb1)
-        await ctx.send(embed=emb2)
-        await ctx.send(embed=emb3)
-
-    @commands.command(name="wiki",
-                      brief="wikipedia",
-                      usage="wiki {word} {word} (etc.)",
-                      description = 'Browser link')
-    async def wiki(self, ctx,lan,sent,*,ser):
-        wikipedia.set_lang(lan)
-        search=ser
-        ser=ser.replace(' ','_')
-        url1='https://ru.wikipedia.org/wiki/'+ser
-        emb1 = discord.Embed(title='Wiki',colour = discord.Color.green())
-        emb1.add_field(name=ser, value=wikipedia.summary(search,sentences=sent), inline=True)
-        emb2 = discord.Embed(title='Etc?',colour = discord.Color.green(),url=url1)
-        await ctx.send(embed=emb1)
-        await ctx.send(embed=emb2)
-
-    @commands.command(name="art",
-                      brief="translator",
-                      usage="art {source} {required} {formality_tone} {text}",
-                      description = 'Deepl translator')
-    async def art(self, ctx,source,target,tn,*,resp):
-        responce = deepl.translate(source_language=source,
-                target_language=target,
-                text=resp,
-                formality_tone=tn)
-        responce1 = deepl.translate(source_language=target,
-                target_language=source,
-                text=responce,
-                formality_tone=tn)
-        title1 = source +' -> '+ target
-        title2 = target +' -> '+ source
-        url1='https://www.deepl.com/en/translator'
-        emb1 = discord.Embed(title=title1,colour = discord.Color.green())
-        emb1.add_field(name=target, value=responce, inline=True)
-        emb2 = discord.Embed(title=title2,colour = discord.Color.green())
-        emb2.add_field(name=target, value=responce1, inline=True)
-        emb3 = discord.Embed(title='Etc?',colour = discord.Color.green(),url=url1)
-        await ctx.send(embed=emb1)
-        await ctx.send(embed=emb2)
-
-
-def setup(bot: commands.Bot):
-   bot.add_cog(Education(bot))
-print('educ cog')
-
+'''

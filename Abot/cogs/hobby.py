@@ -1,71 +1,88 @@
-from mylibs import confidenc as bt
+#from mylibs import confidenc as bt
+
+#from mylibs import confidenc
 import json
 import requests
 import discord
 from discord.ext import commands
 import random
-class Hobby(commands.Cog):
+from discord_together import DiscordTogether
+#bot = commands.Bot(command_prefix = ['='],intents=discord.Intents.all())
+#together_client =DiscordTogether('ODE0NDc4NDM4MDM4ODk2Njky.YDecJw.co6Eg-Imi3zRugN9qWyW_Q4ZcwA')
+mytokenhash='ODE0NDc4NDM4MDM4ODk2Njky.YDecJw.co6Eg-Imi3zRugN9qWyW_Q4ZcwA'
+#DiscordTogether
+
+
+#together_client = DiscordTogether(bot)
+class Group(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @commands.guild_only()
-    @commands.command(name="gl",
-                      brief="gl on activity",
-                      usage="=gl <number hobby>",
-                      description = 'generated link activity')
-    async def gl(self, ctx, act = 0):
-        if act == 0:
-            c = random.randint(1,5)
-            if c == 1:
-                a = {"b":"755600276941176913"}#YT
-            elif c == 2:
-                a = {"b":"773336526917861400"}#BI
-            elif c == 3:
-                a = {"b":"814288819477020702"}#FI
-            elif c == 4:
-                a = {"b":"755827207812677713"}#PN
-            else:
-                a = {"b":"832012774040141894"}#CS
-        elif act == 1:
-            a = {"b":"755600276941176913"}#YT
-        elif act == 2:
-            a = {"b":"773336526917861400"}#BI
-        elif act == 3:
-            a = {"b":"814288819477020702"}#FI
-        elif act == 4:
-            a = {"b":"755827207812677713"}#PN
-        else:
-            a = {"b":"832012774040141894"}#CS
-        data = {
-            "max_age": 3600,
-            "max_uses": 7,
-            "target_application_id": a["b"],
-            "target_type": 2,
-            "temporary": True,
-            "validate": None
-            }
-        headers = {
-            "Authorization": "Bot" + ' ' + bt.config['token'],
-            "Content-Type": "application/json"
-            }
-        if ctx.author.voice is not None:
-            if ctx.author.voice.channel is not None:
-                channel = ctx.author.voice.channel.id
-            else:
-                await ctx.send("Go to the voice channel")
-        else:
-            await ctx.send("Go to the voice channel")
-        response = requests.post(f"https://discord.com/api/v8/channels/{channel}/invites", data=json.dumps(data), headers=headers)
-        link = json.loads(response.content)
-        await ctx.send(f"https://discord.com/invite/{link['code']}")
-
-    @commands.command(usage='test <member>',
-                      hidden = True)
-    async def test(self, ctx, member: discord.Member):
-        print(member)
+    @commands.guild_only()    
+    @commands.Cog.listener()
+    async def on_ready(self):
+        self.togetherControl = await DiscordTogether(mytokenhash) 
+        # Remember to only use this if you haven't already made a bot variable for `togetherControl` in your bot.py file.
+        # If you have already declared a bot variable for it, you can use `self.client.togetherControl` to access it's functions
        
-def setup(bot: commands.Bot):
-   bot.add_cog(Hobby(bot))
+    @commands.guild_only()
+    @commands.command()
+    async def yt(self, ctx):
+        global together_client
+        link = await self.togetherControl.create_link(ctx.author.voice.channel.id, 'youtube')
+        await ctx.send(f"!\n{link}")
+
+    @commands.guild_only()
+    @commands.command()
+    async def poker(self, ctx):
+        link = await self.togetherControl.create_link(ctx.author.voice.channel.id, 'poker')
+        await ctx.send(f"!\n{link}")
+
+    @commands.guild_only()
+    @commands.command()
+    async def chess(self, ctx):
+        link = await self.togetherControl.create_link(ctx.author.voice.channel.id, 'chess')
+        await ctx.send(f"!\n{link}")
+
+    @commands.guild_only()
+    @commands.command()
+    async def fishing(self, ctx):
+        link = await self.togetherControl.create_link(ctx.author.voice.channel.id, 'fishing')
+        await ctx.send(f"!\n{link}")
+
+    @commands.guild_only()
+    @commands.command()
+    async def betrayal(self, ctx):
+        link = await self.togetherControl.create_link(ctx.author.voice.channel.id, 'betrayal')
+        await ctx.send(f"!\n{link}")
+
+    @commands.guild_only()
+    @commands.command()
+    async def lettertile(self, ctx):
+        link = await self.togetherControl.create_link(ctx.author.voice.channel.id, 'letter-tile')
+        await ctx.send(f"!\n{link}")
+
+    @commands.guild_only()
+    @commands.command()
+    async def wordsnack(self, ctx):
+        link = await self.togetherControl.create_link(ctx.author.voice.channel.id, 'word-snack')
+        await ctx.send(f"!\n{link}")
+
+    @commands.guild_only()
+    @commands.command()
+    async def doodlecrew(self, ctx):
+        link = await self.togetherControl.create_link(ctx.author.voice.channel.id, 'doodle-crew')
+        await ctx.send(f"!\n{link}")
+
+    @commands.guild_only()
+    @commands.command()
+    async def start(self, ctx):
+        # Here we consider that the user is already in a VC accessible to the bot.
+        link = await self.togetherControl.create_link(ctx.author.voice.channel.id, 'youtube')
+        await ctx.send(f"Click the blue link!\n{link}")
+       
+async def setup(bot: commands.Bot):
+   await bot.add_cog(Group(bot))
 #activity = {
 #    "Youtube Together": "755600276941176913"
 #    "Betrayal.io": "773336526917861400"
@@ -73,4 +90,11 @@ def setup(bot: commands.Bot):
 #    "Poker Night": "755827207812677713"
 #    "Chess": "832012774040141894"
 #    }
-print('Hobby cog')
+print('Group')
+
+'''
+    @commands.event
+    async def on_ready():
+        commands.togetherControl = await DiscordTogether("BOT_TOKEN_HERE")
+        print('Bot is online!')
+'''

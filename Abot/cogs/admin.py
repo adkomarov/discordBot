@@ -79,6 +79,6 @@ class Admin(commands.Cog):
       await ctx.send(f"Member {member.mention} was banned on this server")
       await member.ban(reason=reason)
 
-def setup(bot: commands.Bot):
-   bot.add_cog(Admin(bot))
+async def setup(bot: commands.Bot): # Подключение кога.
+    await bot.add_cog(Admin(bot))
 print('Admin cog')

@@ -10,6 +10,6 @@ class Process(commands.Cog):
         await self.bot.change_presence(status=discord.Status.idle,activity=activity) 
         print('BOT ONLINE')
     
-def setup(bot: commands.Bot):
-   bot.add_cog(Process(bot))
+async def setup(bot: commands.Bot):
+   await bot.add_cog(Process(bot))
 print('Process cog')

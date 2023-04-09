@@ -1,19 +1,42 @@
 import discord
-#from discord import Member
 from discord.ext import commands
-#from discord.ext.commands import Bot
-#from discord.ext.commands import has_permissions
-#from discord.utils import get
-from Cybernator import Paginator
 from mylibs import confidenc
 from mylibs import mycolors
 import os
-import json
 import requests
 import asyncio
+import time
+
+#import json
 #import youtube_dl
 #import ffmpeg
-bot = commands.Bot(command_prefix = confidenc.config['prefix'],intents=discord.Intents.all(),)
+#from Cybernator import Paginator
+#from discord import Member
+
+from discord_together import DiscordTogether
+
+class MyBot(commands.Bot):
+    def __init__(self):
+        super().__init__(
+            command_prefix=confidenc.config['prefix'], 
+            intents=discord.Intents.all() # ВНИМАНИЕ: теперь обязательно надо вводить параметр intents.
+                                              # Если Вы не знаете, что это такое - введите, как у меня.
+        )
+    '''
+    async def setup_hook(self): # Подлючение когов.
+        for ext in cog_list:
+            await self.load_extension(ext)
+    '''  
+    async def on_ready(self):
+        print(f"{bot.user} запущен!")
+bot = MyBot()
+#bot = commands.Bot(intents=discord.Intents.all())
+together_client = DiscordTogether(bot)
+
+cog_list = [
+    "cogs.admin", # Точка заменяет нам '/', поэтому '.py' в конце писать не надо.
+    "cogs.cogtest"
+    ]
 
 @bot.is_owner
 @bot.command(name="load",
@@ -22,7 +45,7 @@ bot = commands.Bot(command_prefix = confidenc.config['prefix'],intents=discord.I
              description ='load cog file , warning',
              hidden = True)
 async def load(ctx, extension):
-    bot.load_extension(f'cogs.{extension}')
+    await bot.load_extension(f'cogs.{extension}')
     print('load')
     
 @bot.is_owner
@@ -32,7 +55,7 @@ async def load(ctx, extension):
              description ='unload cog file , warning',
              hidden = True)
 async def unload(ctx, extension):
-    bot.unload_extension(f'cogs.{extension}')
+    await bot.unload_extension(f'cogs.{extension}')
     print('unload')
     
 @bot.is_owner
@@ -42,13 +65,21 @@ async def unload(ctx, extension):
              description ='reload cog file , warning',
              hidden = True)
 async def reload(ctx, extension):
-    bot.unload_extension(f'cogs.{extension}')
-    bot.load_extension(f'cogs.{extension}')
-    print('reload{extension}')
-    
-for filename in os.listdir('./cogs'):
-    if filename.endswith('.py'):
-        bot.load_extension(f'cogs.{filename[:-3]}')
-    else:
-       print(f'Unable to load {filename[:-3]}')
-bot.run(confidenc.config['token'])
+    await bot.unload_extension(f'cogs.{extension}')
+    await bot.load_extension(f'cogs.{extension}')
+    print('reload.{extension}')
+   
+async def load_extensions():
+    for filename in os.listdir("./cogs"):
+        if filename.endswith(".py"):
+            # cut off the .py from the file name
+            await bot.load_extension(f"cogs.{filename[:-3]}")
+            
+async def main():
+    async with bot:
+        await load_extensions()
+        await bot.start(confidenc.config['token'])
+
+asyncio.run(main())
+
+#bot.run(confidenc.config['token'])
