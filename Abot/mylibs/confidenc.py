@@ -1,5 +1,5 @@
 config = {
-    'token': 'ODE0NDc4NDM4MDM4ODk2Njky.GBNjEA.qIQ4m3yipkqHAQUSRcBdbht5wJb3m43LO-9QJY',
+    'token': 'AAA0Aaa0AAA0AAA0Aaa0Aaaa.AAAaAA.aaA0a0aaaaaAAAAAAaAaaaa0aAa0a00AA-0AAA',#Вставить между одинарными кавычками новый токен
     'bot': 'IDEA',
     'id': 814478438038896692,#BOT
     'prefix': '='
